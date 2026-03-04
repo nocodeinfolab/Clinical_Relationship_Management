@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral CRM — Clinical Command</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #0d1f35;
+            --navy-mid: #162d4a;
+            --navy-light: #1e3d60;
+            --gold: #c8a96e;
+            --gold-light: #e2c896;
+            --gold-pale: #f5eed9;
+            --ivory: #faf8f3;
+            --ivory-dark: #f0ece0;
+            --cream: #e8e2d0;
+            --slate: #4a6280;
+            --slate-light: #7a93ad;
+            --text-dark: #0d1f35;
+            --text-mid: #2d4a6b;
+            --text-muted: #6b85a0;
+            --green: #2e7d5e;
+            --green-light: #e8f5ef;
+            --red: #8b3a3a;
+            --red-light: #fdf0f0;
+            --amber: #b5740a;
+            --amber-light: #fef7e6;
+            --border: rgba(13,31,53,0.1);
+            --border-gold: rgba(200,169,110,0.3);
+            --shadow: 0 4px 24px rgba(13,31,53,0.08);
+            --shadow-deep: 0 8px 48px rgba(13,31,53,0.15);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--ivory);
+            color: var(--text-dark);
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ─── HEADER ─────────────────────────────── */
+        .header {
+            background: var(--navy);
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 68px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(200,169,110,0.2);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 46px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-icon svg { width: 20px; height: 24px; fill: var(--navy); }
+
+        .header-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--ivory);
+            letter-spacing: 0.02em;
+        }
+
+        .header-sub {
+            font-size: 13px;
+            color: var(--ivory);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-time {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--slate-light);
+        }
+
+        .header-badge {
+            background: rgba(200,169,110,0.15);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.06em;
+        }
+
+        /* ─── TABS ─────────────────────────────── */
+        .tab-bar {
+            background: var(--navy-mid);
+            padding: 0 40px;
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid rgba(200,169,110,0.15);
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 22px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--slate-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .tab:hover { color: var(--gold-light); }
+
+        .tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+            background: rgba(200,169,110,0.06);
+        }
+
+        .tab svg { width: 14px; height: 14px; opacity: 0.8; }
+
+        /* ─── CONTENT ─────────────────────────────── */
+        .content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 36px 40px;
+        }
+
+        .panel { display: none; animation: fadeIn 0.3s ease; }
+        .panel.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── SECTION HEADER ─────────────────────────────── */
+        .section-head {
+            margin-bottom: 28px;
+        }
+
+        .section-head h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px;
+            font-weight: 400;
+            color: var(--navy);
+            letter-spacing: -0.01em;
+        }
+
+        .section-head p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .section-divider {
+            width: 48px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            margin: 10px 0 6px;
+        }
+
+        /* ─── STATS ROW ─────────────────────────────── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .stat-card:hover { box-shadow: var(--shadow); }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        }
+
+        .stat-label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 300;
+            color: var(--navy);
+            line-height: 1;
+            margin: 10px 0 4px;
+        }
+
+        .stat-sub {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+        }
+
+        .trend-up { background: var(--green-light); color: var(--green); }
+        .trend-down { background: var(--red-light); color: var(--red); }
+
+        /* ─── GRID LAYOUT ─────────────────────────────── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+        /* ─── CARDS ─────────────────────────────── */
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--navy);
+        }
+
+        .card-body { padding: 24px; }
+
+        .card-badge {
+            font-size: 10.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--gold-pale);
+            color: var(--amber);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* ─── FORM ELEMENTS ─────────────────────────────── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            color: var(--text-dark);
+            background: var(--ivory);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            appearance: none;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(200,169,110,0.12);
+            background: #fff;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a6280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* ─── BUTTONS ─────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
+            position: relative;
+        }
+
+        .btn-primary {
+            background: var(--navy);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: var(--navy-light); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), #b8934a);
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        .btn-gold:hover { opacity: 0.9; box-shadow: 0 4px 14px rgba(200,169,110,0.4); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-mid);
+        }
+
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-full { width: 100%; }
+
+        .spinner-inline {
+            display: none;
+            width: 13px;
+            height: 13px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-gold .spinner-inline {
+            border-color: rgba(13,31,53,0.2);
+            border-top-color: var(--navy);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ─── TABLE ─────────────────────────────── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead th {
+            padding: 10px 16px;
+            font-size: 10.5px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            background: var(--ivory);
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .data-table tbody td {
+            padding: 13px 16px;
+            font-size: 13.5px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:last-child td { border-bottom: none; }
+        .data-table tbody tr:hover td { background: var(--ivory); }
+
+        /* ─── BADGES ─────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-sent { background: var(--green-light); color: var(--green); }
+        .badge-pending { background: var(--amber-light); color: var(--amber); }
+        .badge-failed { background: var(--red-light); color: var(--red); }
+
+        .badge-stage {
+            background: rgba(13,31,53,0.07);
+            color: var(--navy);
+            text-transform: capitalize;
+        }
+
+        /* ─── LEADERBOARD ─────────────────────────────── */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-item:last-child { border-bottom: none; }
+
+        .lb-rank {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 300;
+            color: var(--cream);
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .lb-rank.top { color: var(--gold); }
+
+        .lb-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy-light), var(--slate));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .lb-info { flex: 1; }
+        .lb-name { font-weight: 500; font-size: 13.5px; }
+        .lb-detail { font-size: 11.5px; color: var(--text-muted); }
+
+        .lb-bar-wrap {
+            flex: 1;
+            background: var(--ivory-dark);
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .lb-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .lb-count {
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--navy);
+            width: 36px;
+            text-align: right;
+        }
+
+        /* ─── ACTIVITY FEED ─────────────────────────────── */
+        .activity-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child { border-bottom: none; }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gold);
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .activity-text { font-size: 13px; color: var(--text-mid); }
+        .activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+        /* ─── STAGE PIPELINE ─────────────────────────────── */
+        .pipeline {
+            display: flex;
+            gap: 0;
+            margin: 20px 0;
+        }
+
+        .pipeline-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .pipeline-step::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .pipeline-step:last-child::after { display: none; }
+
+        .pipeline-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: #fff;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.done .pipeline-dot {
+            border-color: var(--gold);
+            background: var(--gold);
+            color: var(--navy);
+        }
+
+        .pipeline-step.active .pipeline-dot {
+            border-color: var(--navy);
+            color: var(--navy);
+            box-shadow: 0 0 0 4px rgba(13,31,53,0.1);
+        }
+
+        .pipeline-label {
+            font-size: 10.5px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .pipeline-step.done .pipeline-label { color: var(--navy); font-weight: 600; }
+
+        /* ─── EMPTY STATE ─────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg { width: 40px; height: 40px; opacity: 0.3; margin-bottom: 12px; }
+        .empty-state p { font-size: 13.5px; }
+
+        /* ─── TOAST ─────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--navy);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-deep);
+            animation: slideUp 0.3s ease;
+            min-width: 280px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .toast.error { border-left-color: #e05c5c; }
+        .toast.success { border-left-color: #4caf80; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── SEARCH BAR ─────────────────────────────── */
+        .search-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 14px 9px 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13.5px;
+            background: var(--ivory);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--gold); background: #fff; }
+
+        .search-icon {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            opacity: 0.35;
+        }
+        .btn-danger {
+            background: #b13a3a;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #8b2c2c;
+            box-shadow: 0 4px 12px rgba(139,44,44,0.35);
+        }
+
+
+        /* ─── SCROLLBAR ─────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--ivory); }
+        ::-webkit-scrollbar-thumb { background: var(--cream); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--slate-light); }
+        /* ─── RESPONSIVE ─── */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .content { padding: 28px 24px; }
+            .header { padding: 0 24px; }
+            .tab-bar { padding: 0 24px; }
+
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .two-col { grid-template-columns: 1fr; }
+            .three-col { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Large mobile */
+        @media (max-width: 680px) {
+            /* Header */
+            .header {
+                padding: 0 16px;
+                height: auto;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            .header-sub { display: none; }
+            .header-title { font-size: 18px; }
+            .header-icon { width: 34px; height: 34px; }
+            .header-time { display: none; }
+
+            .header-right { gap: 10px; }
+            .header-badge { font-size: 10px; padding: 3px 8px; }
+
+            /* Tab bar — horizontal scroll */
+            .tab-bar {
+                padding: 0 12px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                gap: 0;
+                flex-wrap: nowrap;
+            }
+
+            .tab-bar::-webkit-scrollbar { display: none; }
+
+            .tab {
+                padding: 12px 14px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .tab svg { display: none; }
+
+            /* Content */
+            .content { padding: 20px 16px; }
+
+            /* Section header */
+            .section-head h2 { font-size: 24px; }
+
+            /* Stats */
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+            .stat-value { font-size: 32px; }
+            .stat-card { padding: 16px 18px; }
+
+            /* Cards */
+            .card-header { padding: 14px 16px; flex-wrap: wrap; gap: 8px; }
+            .card-body { padding: 16px; }
+            .card-title { font-size: 16px; }
+
+            /* Forms */
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+
+            /* Tables — horizontal scroll */
+            .data-table thead th { padding: 8px 12px; font-size: 10px; }
+            .data-table tbody td { padding: 10px 12px; font-size: 12.5px; }
+
+            /* Pipeline viz — scroll horizontally */
+            .pipeline {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 8px;
+                gap: 0;
+            }
+
+            .pipeline-step { min-width: 72px; }
+            .pipeline-label { font-size: 9px; }
+
+            /* Leaderboard */
+            .lb-bar-wrap { display: none; }
+            .lb-detail { font-size: 11px; }
+
+            /* Toast */
+            .toast-container { bottom: 16px; right: 12px; left: 12px; }
+            .toast { min-width: unset; width: 100%; }
+
+            /* Grid fallbacks */
+            .two-col,
+            .three-col { grid-template-columns: 1fr; }
+        }
+
+        /* Small mobile */
+        @media (max-width: 400px) {
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-value { font-size: 28px; }
+            .stat-card { padding: 14px; }
+
+            .tab { padding: 12px 10px; font-size: 10.5px; }
+            .content { padding: 16px 12px; }
+
+            .form-input, .form-select {
+                font-size: 16px; /* prevents iOS zoom */
+            }
+
+            .btn { padding: 10px 16px; font-size: 12.5px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ─── HEADER ─────────────────────────────── -->
+<header class="header">
+    <div class="header-brand">
+        <div class="header-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </div>
+        <div>
+            <div class="header-title">Referral Nexus</div>
+            <div class="header-sub">Clinical Relationship Management System</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <span class="header-time" id="liveTime">—</span>
+        <span class="header-badge">● Live</span>
+
+        <button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="logout()">
+            Logout
+        </button>
+    </div>
+</header>
+
+<!-- ─── TAB BAR ─────────────────────────────── -->
+<nav class="tab-bar">
+    <div class="tab active" onclick="switchTab('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+    </div>
+    <div class="tab" onclick="switchTab('doctors', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Referring Doctors
+    </div>
+    <div class="tab" onclick="switchTab('patients', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Patients & Referrals
+    </div>
+    <div class="tab" onclick="switchTab('pipeline', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Care Pipeline
+    </div>
+    <div class="tab" onclick="switchTab('comms', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Communications
+    </div>
+</nav>
+
+<div class="content">
+
+    <!-- ═══════════════════════════════════════════
+         TAB 1 — DASHBOARD
+    ══════════════════════════════════════════════ -->
+    <div class="panel active" id="panel-dashboard">
+
+        <div class="section-head">
+            <h2>Performance Overview</h2>
+            <div class="section-divider"></div>
+            <p>Real-time metrics across referral network and liaison performance</p>
+        </div>
+
+        <!-- KPI Stats -->
+        <div class="stats-row" id="kpiRow">
+            <div class="stat-card">
+                <div class="stat-label">Total Referrals</div>
+                <div class="stat-value" id="kpiReferrals">—</div>
+                <div class="stat-sub">All time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Doctors</div>
+                <div class="stat-value" id="kpiDoctors">—</div>
+                <div class="stat-sub">In network</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Patients Enrolled</div>
+                <div class="stat-value" id="kpiPatients">—</div>
+                <div class="stat-sub">All time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Messages Sent</div>
+                <div class="stat-value" id="kpiMessages">—</div>
+                <div class="stat-sub">Via Email</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+
+            <!-- Doctor Leaderboard -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Top Referring Doctors</span>
+                    <span class="card-badge">By Referrals</span>
+                </div>
+                <div class="card-body" id="doctorLeaderboard">
+                    <div class="empty-state"><p>Loading…</p></div>
+                </div>
+            </div>
+
+            <!-- Liaison Leaderboard -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Liaison Performance</span>
+                    <span class="card-badge">Onboarded Doctors</span>
+                </div>
+                <div class="card-body" id="liaisonLeaderboard">
+                    <div class="empty-state"><p>Loading…</p></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Stage Distribution -->
+        <div class="card" style="margin-top:24px;">
+            <div class="card-header">
+                <span class="card-title">Stage Distribution</span>
+                <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="loadDashboard()">↻ Refresh</button>
+            </div>
+            <div class="card-body" id="stageDistribution">
+                <div class="empty-state"><p>Loading…</p></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         TAB 2 — REFERRING DOCTORS
+    ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-doctors">
+
+        <div class="section-head">
+            <h2>Referring Doctors</h2>
+            <div class="section-divider"></div>
+            <p>Onboard and manage referring physician partners</p>
+        </div>
+
+        <div class="two-col">
+
+            <!-- Add Doctor Form -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Onboard New Doctor</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input class="form-input" id="doctorName" placeholder="Dr. Amara Okafor">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input class="form-input" id="doctorEmail" placeholder="doctor@hospital.com" type="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input class="form-input" id="doctorPhone" placeholder="+234 800 000 0000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Assigned Liaison</label>
+                        <select class="form-select" id="liaisonSelect">
+                            <option value="">Select liaison…</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Specialty</label>
+                        <select class="form-select" id="doctorSpecialty">
+                            <option value="">Select specialty…</option>
+                            <option>General Practice</option>
+                            <option>Cardiology</option>
+                            <option>Oncology</option>
+                            <option>Neurology</option>
+                            <option>Orthopedics</option>
+                            <option>Obstetrics & Gynecology</option>
+                            <option>Pediatrics</option>
+                            <option>Internal Medicine</option>
+                            <option>Surgery</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-gold btn-full" id="btnAddDoctor" onclick="addDoctor()">
+                        <span class="spinner-inline" id="spAddDoctor"></span>
+                        Add Referring Doctor
+                    </button>
+                </div>
+            </div>
+
+            <!-- Doctor Directory -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Doctor Directory</span>
+                </div>
+                <div class="card-body" style="padding:16px;">
+                    <div class="search-wrap">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <input class="search-input" placeholder="Search doctors…" oninput="filterDoctorTable(this.value)">
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="doctorTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Liaison</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doctorTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         TAB 3 — PATIENTS & REFERRALS
+    ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-patients">
+
+        <div class="section-head">
+            <h2>Patients & Referrals</h2>
+            <div class="section-divider"></div>
+            <p>Register patients and link them to referring physicians</p>
+        </div>
+
+        <div class="two-col">
+
+            <!-- Add Patient Form -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">New Patient Referral</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Patient Full Name</label>
+                        <input class="form-input" id="patientName" placeholder="Chukwuemeka Obi">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input class="form-input" id="patientDob" type="date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" id="patientGender">
+                                <option value="">Select…</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Referring Doctor</label>
+                        <select class="form-select" id="doctorSelect">
+                            <option value="">Select doctor…</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Referral Priority</label>
+                        <select class="form-select" id="referralPriority">
+                            <option value="routine">Routine</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="emergency">Emergency</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Clinical Notes</label>
+                        <textarea class="form-input" id="clinicalNotes" rows="3" placeholder="Brief reason for referral…" style="resize:vertical;"></textarea>
+                    </div>
+                    <button class="btn btn-gold btn-full" id="btnAddPatient" onclick="addPatientWithReferral()">
+                        <span class="spinner-inline" id="spAddPatient"></span>
+                        Create Referral
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Referrals -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Recent Referrals</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table" id="referralTable">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referralTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         TAB 4 — CARE PIPELINE
+    ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-pipeline">
+
+        <div class="section-head">
+            <h2>Care Pipeline</h2>
+            <div class="section-divider"></div>
+            <p>Advance patients through clinical stages and trigger communications</p>
+        </div>
+
+        <div class="two-col">
+
+            <!-- Complete Stage -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Advance Stage</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Select Referral Case</label>
+                        <select class="form-select" id="referralSelect">
+                            <option value="">Choose patient…</option>
+                        </select>
+                    </div>
+
+                    <!-- Pipeline Visual -->
+                    <div class="pipeline" id="pipelineViz">
+                        <div class="pipeline-step" id="ps-preliminary-consultation">
+                            <div class="pipeline-dot">✦</div>
+                            <div class="pipeline-label">Pre Consult</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-preliminary-tests">
+                            <div class="pipeline-dot">⬡</div>
+                            <div class="pipeline-label">Pre Test</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-chemotherapy">
+                            <div class="pipeline-dot">◎</div>
+                            <div class="pipeline-label">Chemo</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-ct-simulation">
+                            <div class="pipeline-dot">✚</div>
+                            <div class="pipeline-label">CT</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-radiotherapy">
+                            <div class="pipeline-dot">✓</div>
+                            <div class="pipeline-label">Radio</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-brachytherapy">
+                            <div class="pipeline-dot">✓</div>
+                            <div class="pipeline-label">Brachy</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-surgery">
+                            <div class="pipeline-dot">✓</div>
+                            <div class="pipeline-label">Surgery</div>
+                        </div>
+                        <div class="pipeline-step" id="ps-palliative-care">
+                            <div class="pipeline-dot">✓</div>
+                            <div class="pipeline-label">Palliative Care</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:8px;">
+                        <label class="form-label">Stage to Complete</label>
+                        <select class="form-select" id="stageName" onchange="updatePipelineViz()">
+                            <option value="preliminary consultation">Preliminary Consultation</option>
+                            <option value="preliminary tests">Preliminary Tests</option>
+                            <option value="chemotherapy">Chemotherapy</option>
+                            <option value="ct simulation">CT Simulation</option>
+                            <option value="radiotherapy">Radiotherapy</option>
+                            <option value="brachytherapy">Brachytherapy</option>
+                            <option value="surgery">Surgery</option>
+                            <option value="palliative care">Palliative Care</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notification Channels</label>
+
+                        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" class="channelOption" value="email">
+                                Email
+                            </label>
+
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" class="channelOption" value="whatsapp">
+                                WhatsApp
+                            </label>
+
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" class="channelOption" value="sms">
+                                SMS
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <button class="btn btn-gold btn-full" id="btnStage" onclick="completeStage()">
+                        <span class="spinner-inline" id="spStage"></span>
+                        Complete Stage & Notify Doctor
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stage History -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Stage History</span>
+                    <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="loadStageHistory()">↻</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Stage</th>
+                                <th>Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stageHistoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         TAB 5 — COMMUNICATIONS
+    ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-comms">
+
+        <div class="section-head">
+            <h2>Communication Logs</h2>
+            <div class="section-divider"></div>
+            <p>All outbound notifications sent to referring physicians</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Message Log</span>
+                <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;" onclick="loadLogs()">↻ Refresh</button>
+            </div>
+            <div class="card-body" style="padding:16px 16px 0;">
+                <div class="search-wrap">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input class="search-input" placeholder="Filter by doctor or patient…" oninput="filterLogs(this.value)">
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table" id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Patient</th>
+                            <th>Stage</th>
+                            <th>Channel</th>
+                            <th>Status</th>
+                            <th>Sent At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    const { createClient } = supabase;
+    const db = createClient(
+        "https://zgvhlhkgcauakwmiymrq.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpndmhsaGtnY2F1YWt3bWl5bXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTQzMDQsImV4cCI6MjA4ODEzMDMwNH0.CXHrcCFRVbE2SwRhxGDWa6-z2cimsTp4lDUAN-1SgLk"
+    );
+    async function checkAuth() {
+
+        const { data: { session } } = await db.auth.getSession();
+
+        if (!session) {
+            window.location.href = "login.html";
+            return;
+        }
+
+    }
+
+    checkAuth();
+
+    // ─── LIVE CLOCK ─────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('liveTime').textContent =
+            now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ─── TABS ─────────────────────────────────
+    function switchTab(name, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('panel-' + name).classList.add('active');
+
+        if (name === 'dashboard') loadDashboard();
+        if (name === 'comms') loadLogs();
+        if (name === 'pipeline') loadStageHistory();
+    }
+
+    // ─── TOAST ─────────────────────────────────
+    function toast(msg, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
+        document.getElementById('toastContainer').appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+
+    // ─── SPINNER ─────────────────────────────────
+    function spin(id, show) {
+        document.getElementById(id).style.display = show ? 'inline-block' : 'none';
+    }
+
+    function btnDisable(id, dis) {
+        document.getElementById(id).disabled = dis;
+    }
+
+    // ─── INITIALS ─────────────────────────────────
+    function initials(name) {
+        return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    // ─── FORMAT DATE ─────────────────────────────────
+    function fmtDate(str) {
+        if (!str) return '—';
+        const d = new Date(str);
+        return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    }
+
+    function fmtDateTime(str) {
+        if (!str) return '—';
+        const d = new Date(str);
+        return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' ' +
+               d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    /* ══════════════════════════════════════
+       LOAD DROPDOWNS
+    ══════════════════════════════════════ */
+
+    let allDoctors = [];
+    let allDoctorRows = [];
+    let allLogRows = [];
+
+    async function loadLiaisons() {
+        const { data } = await db.from("physician_liaisons").select("id, full_name");
+        if (!data) return;
+        const sel = document.getElementById("liaisonSelect");
+        sel.innerHTML = '<option value="">Select liaison…</option>';
+        data.forEach(l => sel.innerHTML += `<option value="${l.id}">${l.full_name}</option>`);
+    }
+
+    async function loadDoctors() {
+        const { data } = await db.from("referring_doctors").select("id, full_name, phone, email, physician_liaisons(full_name)");
+        if (!data) return;
+        allDoctors = data;
+
+        // Doctor dropdown
+        const sel = document.getElementById("doctorSelect");
+        sel.innerHTML = '<option value="">Select doctor…</option>';
+        data.forEach(d => sel.innerHTML += `<option value="${d.id}">${d.full_name}</option>`);
+
+        // Doctor table
+        renderDoctorTable(data);
+    }
+
+    function renderDoctorTable(data) {
+        const tbody = document.getElementById("doctorTableBody");
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">No doctors found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(d => `
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--navy-light),var(--slate));display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-size:11px;font-family:'Cormorant Garamond',serif;font-weight:500;flex-shrink:0;">${initials(d.full_name)}</div>
+                        <div>
+                            <div style="font-weight:500;">${d.full_name}</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);">${d.email || '—'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-family:'DM Mono',monospace;font-size:12.5px;">${d.phone || '—'}</td>
+                <td>${d.physician_liaisons?.full_name || '<span style="color:var(--text-muted)">Unassigned</span>'}</td>
+            </tr>
+        `).join('');
+    }
+
+    function filterDoctorTable(q) {
+        const filtered = allDoctors.filter(d =>
+            d.full_name.toLowerCase().includes(q.toLowerCase()) ||
+            (d.email || '').toLowerCase().includes(q.toLowerCase())
+        );
+        renderDoctorTable(filtered);
+    }
+
+    async function loadReferralCases() {
+        const { data } = await db.from("referral_cases").select(`id, created_at, patients(full_name), referring_doctors(full_name)`);
+        if (!data) return;
+
+        const sel = document.getElementById("referralSelect");
+        sel.innerHTML = '<option value="">Choose patient…</option>';
+        data.forEach(rc => sel.innerHTML += `<option value="${rc.id}">${rc.patients?.full_name} → ${rc.referring_doctors?.full_name}</option>`);
+
+        // Referral table
+        const tbody = document.getElementById("referralTableBody");
+        tbody.innerHTML = data.slice(0, 20).map(rc => `
+            <tr>
+                <td><strong>${rc.patients?.full_name || '—'}</strong></td>
+                <td>${rc.referring_doctors?.full_name || '—'}</td>
+                <td style="font-size:12.5px;color:var(--text-muted);">${fmtDate(rc.created_at)}</td>
+            </tr>
+        `).join('');
+    }
+
+    /* ══════════════════════════════════════
+       DASHBOARD
+    ══════════════════════════════════════ */
+
+    async function loadDashboard() {
+        // KPIs
+        const [r1, r2, r3, r4] = await Promise.all([
+            db.from("referral_cases").select("id", { count: 'exact', head: true }),
+            db.from("referring_doctors").select("id", { count: 'exact', head: true }),
+            db.from("patients").select("id", { count: 'exact', head: true }),
+            db.from("communication_logs").select("id", { count: 'exact', head: true })
+        ]);
+
+        document.getElementById('kpiReferrals').textContent = r1.count ?? '—';
+        document.getElementById('kpiDoctors').textContent = r2.count ?? '—';
+        document.getElementById('kpiPatients').textContent = r3.count ?? '—';
+        document.getElementById('kpiMessages').textContent = r4.count ?? '—';
+
+        // Doctor leaderboard
+        const { data: refCases } = await db.from("referral_cases").select("referring_doctor_id, referring_doctors(full_name)");
+        if (refCases) {
+            const counts = {};
+            refCases.forEach(rc => {
+                const id = rc.referring_doctor_id;
+                const name = rc.referring_doctors?.full_name || 'Unknown';
+                counts[id] = counts[id] || { name, count: 0 };
+                counts[id].count++;
+            });
+            const sorted = Object.values(counts).sort((a, b) => b.count - a.count).slice(0, 6);
+            const max = sorted[0]?.count || 1;
+
+            document.getElementById('doctorLeaderboard').innerHTML = sorted.length ? sorted.map((d, i) => `
+                <div class="leaderboard-item">
+                    <div class="lb-rank ${i < 3 ? 'top' : ''}">${i + 1}</div>
+                    <div class="lb-avatar">${initials(d.name)}</div>
+                    <div class="lb-info">
+                        <div class="lb-name">${d.name}</div>
+                        <div class="lb-detail">${d.count} referral${d.count !== 1 ? 's' : ''}</div>
+                    </div>
+                    <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(d.count/max*100)}%"></div></div>
+                    <div class="lb-count">${d.count}</div>
+                </div>
+            `).join('') : '<div class="empty-state"><p>No referral data yet</p></div>';
+        }
+
+        // Liaison leaderboard
+        const { data: docs } = await db.from("referring_doctors").select("onboarded_by, physician_liaisons(full_name)");
+        if (docs) {
+            const lcounts = {};
+            docs.filter(d => d.onboarded_by).forEach(d => {
+                const id = d.onboarded_by;
+                const name = d.physician_liaisons?.full_name || 'Unknown';
+                lcounts[id] = lcounts[id] || { name, count: 0 };
+                lcounts[id].count++;
+            });
+            const lsorted = Object.values(lcounts).sort((a, b) => b.count - a.count).slice(0, 6);
+            const lmax = lsorted[0]?.count || 1;
+
+            document.getElementById('liaisonLeaderboard').innerHTML = lsorted.length ? lsorted.map((l, i) => `
+                <div class="leaderboard-item">
+                    <div class="lb-rank ${i < 3 ? 'top' : ''}">${i + 1}</div>
+                    <div class="lb-avatar" style="background:linear-gradient(135deg,#2e5e4a,#1e3d30);">${initials(l.name)}</div>
+                    <div class="lb-info">
+                        <div class="lb-name">${l.name}</div>
+                        <div class="lb-detail">${l.count} doctor${l.count !== 1 ? 's' : ''} onboarded</div>
+                    </div>
+                    <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(l.count/lmax*100)}%;background:linear-gradient(90deg,#4caf80,#7dd6a8);"></div></div>
+                    <div class="lb-count">${l.count}</div>
+                </div>
+            `).join('') : '<div class="empty-state"><p>No liaison data yet</p></div>';
+        }
+
+        // Stage distribution
+        const { data: stages } = await db.from("referral_stage_history").select("stage_name");
+        if (stages) {
+            const sc = { "preliminary consultation": 0, "premilimary tests": 0, "chemotherapy": 0, "ct simulation": 0, "radiotherapy": 0, "brachytherapy": 0, "surgery": 0, "palliative care": 0 };
+            stages.forEach(s => { if (sc[s.stage_name] !== undefined) sc[s.stage_name]++; });
+            const total = stages.length || 1;
+            const stageColors = { "preliminary consultation": '#c8a96e', "preliminary tests": '#4a8cb5', "chemotherapy": '#4caf80', "ct simulation": '#e05c5c', "radiotherapy": '#9b6ed4', "surgery": '#9b6ed4', "palliative care": '#4a8cb5' };
+            const stageEl = document.getElementById('stageDistribution');
+
+            if (!stages.length) {
+                stageEl.innerHTML = '<div class="empty-state"><p>No stage data yet</p></div>';
+            } else {
+                stageEl.innerHTML = `
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        ${Object.entries(sc).map(([name, count]) => `
+                            <div style="display:flex;align-items:center;gap:16px;">
+                                <div style="width:90px;font-size:11.5px;text-transform:capitalize;letter-spacing:0.04em;color:var(--text-mid);font-weight:500;">${name}</div>
+                                <div style="flex:1;background:var(--ivory-dark);border-radius:4px;height:10px;overflow:hidden;">
+                                    <div style="width:${count/total*100}%;height:100%;background:${stageColors[name]};border-radius:4px;transition:width 1s ease;"></div>
+                                </div>
+                                <div style="font-family:'DM Mono',monospace;font-size:13px;width:28px;text-align:right;">${count}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+    }
+
+    /* ══════════════════════════════════════
+       ADD DOCTOR
+    ══════════════════════════════════════ */
+
+    async function addDoctor() {
+        const name = document.getElementById("doctorName").value.trim();
+        const email = document.getElementById("doctorEmail").value.trim();
+        const phone = document.getElementById("doctorPhone").value.trim();
+        const liaison = document.getElementById("liaisonSelect").value;
+
+        if (!name) { toast("Please enter doctor's full name", "error"); return; }
+
+        spin('spAddDoctor', true); btnDisable('btnAddDoctor', true);
+
+        const { error } = await db.from("referring_doctors").insert({
+            full_name: name, email: email || null,
+            phone: phone || null, onboarded_by: liaison || null
+        });
+
+        spin('spAddDoctor', false); btnDisable('btnAddDoctor', false);
+
+        if (error) { toast("Error: " + error.message, "error"); return; }
+
+        toast("Dr. " + name + " onboarded successfully");
+        document.getElementById("doctorName").value = '';
+        document.getElementById("doctorEmail").value = '';
+        document.getElementById("doctorPhone").value = '';
+        await loadDoctors();
+    }
+
+    /* ══════════════════════════════════════
+       ADD PATIENT + REFERRAL
+    ══════════════════════════════════════ */
+
+    async function addPatientWithReferral() {
+        const name = document.getElementById("patientName").value.trim();
+        const dob = document.getElementById("patientDob").value;
+        const gender = document.getElementById("patientGender").value;
+        const doctorId = document.getElementById("doctorSelect").value;
+
+        if (!name) { toast("Please enter patient's full name", "error"); return; }
+        if (!doctorId) { toast("Please select a referring doctor", "error"); return; }
+
+        spin('spAddPatient', true); btnDisable('btnAddPatient', true);
+
+        const { data: patient, error: pErr } = await db.from("patients")
+            .insert({ full_name: name, date_of_birth: dob || null, gender: gender || null })
+            .select().single();
+
+        if (pErr) {
+            spin('spAddPatient', false); btnDisable('btnAddPatient', false);
+            toast("Patient error: " + pErr.message, "error"); return;
+        }
+
+        const { error: rErr } = await db.from("referral_cases")
+            .insert({ patient_id: patient.id, referring_doctor_id: doctorId });
+
+        spin('spAddPatient', false); btnDisable('btnAddPatient', false);
+
+        if (rErr) { toast("Referral error: " + rErr.message, "error"); return; }
+
+        toast("Referral created for " + name);
+        document.getElementById("patientName").value = '';
+        document.getElementById("clinicalNotes").value = '';
+        await loadReferralCases();
+    }
+
+    /* ══════════════════════════════════════
+       PIPELINE VISUALIZATION
+    ══════════════════════════════════════ */
+
+    function updatePipelineViz() {
+        const stageOrder = [
+            'preliminary consultation',
+            'preliminary tests',
+            'chemotherapy',
+            'ct simulation',
+            'radiotherapy',
+            'brachytherapy',
+            'surgery',
+            'palliative care'
+        ];
+
+        const selected = document.getElementById('stageName').value;
+        const selectedIndex = stageOrder.indexOf(selected);
+
+        stageOrder.forEach((stage, index) => {
+
+            const normalized = stage.replace(/\s+/g, '-');
+            const el = document.getElementById('ps-' + normalized);
+
+            if (!el) return; // Prevent crash if mismatch
+
+            el.classList.remove('done', 'active');
+
+            if (index < selectedIndex) {
+                el.classList.add('done');
+            } else if (index === selectedIndex) {
+                el.classList.add('active');
+            }
+        });
+    }
+    updatePipelineViz();
+
+    /* ══════════════════════════════════════
+       COMPLETE STAGE
+    ══════════════════════════════════════ */
+
+    async function completeStage() {
+
+        const caseId = document.getElementById("referralSelect").value;
+        const stage = document.getElementById("stageName").value;
+        const channels = Array.from(
+            document.querySelectorAll(".channelOption:checked")
+        ).map(c => c.value);
+        if (channels.length === 0) {
+            toast("Please select at least one notification channel", "error");
+            return;
+        }
+
+        if (!caseId) {
+            toast("Please select a referral case", "error");
+            return;
+        }
+
+        spin("spStage", true);
+        btnDisable("btnStage", true);
+
+        /* ─────────────────────────────
+           1. INSERT STAGE HISTORY
+        ───────────────────────────── */
+
+        const { error: stageErr } = await db
+            .from("referral_stage_history")
+            .insert({
+                referral_case_id: caseId,
+                stage_name: stage,
+                started_at: new Date(),
+                completed_at: new Date()
+            });
+
+        if (stageErr) {
+
+            spin("spStage", false);
+            btnDisable("btnStage", false);
+
+            toast("Stage update failed: " + stageErr.message, "error");
+            return;
+        }
+
+        /* ─────────────────────────────
+           2. FETCH CASE DETAILS
+        ───────────────────────────── */
+
+        const { data: refCase, error: caseErr } = await db
+            .from("referral_cases")
+            .select(`
+                id,
+                referring_doctor_id,
+                patients(full_name),
+                referring_doctors(full_name, email)
+            `)
+            .eq("id", caseId)
+            .single();
+
+        if (caseErr || !refCase) {
+
+            spin("spStage", false);
+            btnDisable("btnStage", false);
+
+            toast("Failed to fetch referral details", "error");
+            return;
+        }
+
+        const doctorName = refCase.referring_doctors?.full_name || "";
+        const doctorEmail = refCase.referring_doctors?.email || "";
+        const patientName = refCase.patients?.full_name || "";
+
+        /* ─────────────────────────────
+           3. SEND EMAIL VIA EDGE FUNCTION
+        ───────────────────────────── */
+
+        try {
+
+            await fetch(
+                "https://zgvhlhkgcauakwmiymrq.functions.supabase.co/super-function",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpndmhsaGtnY2F1YWt3bWl5bXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTQzMDQsImV4cCI6MjA4ODEzMDMwNH0.CXHrcCFRVbE2SwRhxGDWa6-z2cimsTp4lDUAN-1SgLk"
+                    },
+                    body: JSON.stringify({
+                        doctorEmail: doctorEmail,
+                        doctorName: doctorName,
+                        patientName: patientName,
+                        stage: stage,
+                        channels: channels
+                    })
+                }
+            );
+
+        } catch (err) {
+
+            console.error(err);
+
+            spin("spStage", false);
+            btnDisable("btnStage", false);
+
+            toast("Failed to send notification", "error");
+            return;
+        }
+
+        /* ─────────────────────────────
+           4. LOG COMMUNICATION
+        ───────────────────────────── */
+
+        /* ─────────────────────────────
+           4. LOG COMMUNICATION
+        ───────────────────────────── */
+
+        for (const ch of channels) {
+
+            const { error: logErr } = await db
+                .from("communication_logs")
+                .insert({
+                    referral_case_id: caseId,
+                    doctor_id: refCase.referring_doctor_id,
+                    stage_name: stage,
+                    event_type: "stage_completed",
+                    channel: ch,
+                    status: "sent",
+                    sent_at: new Date()
+                });
+
+            if (logErr) {
+                spin("spStage", false);
+                btnDisable("btnStage", false);
+
+                toast("Log error: " + logErr.message, "error");
+                return;
+            }
+
+        }
+
+        spin("spStage", false);
+        btnDisable("btnStage", false);
+
+        toast("Stage completed — doctor notified via " + channels.join(" & "));
+
+        updatePipelineViz();
+        loadStageHistory();
+    }
+
+    /* ══════════════════════════════════════
+       STAGE HISTORY
+    ══════════════════════════════════════ */
+
+    async function loadStageHistory() {
+        const { data } = await db.from("referral_stage_history")
+            .select("stage_name, completed_at, referral_cases(patients(full_name))")
+            .order("completed_at", { ascending: false })
+            .limit(30);
+
+        const tbody = document.getElementById("stageHistoryBody");
+        if (!data || !data.length) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:24px;">No stage history yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(s => `
+            <tr>
+                <td>${s.referral_cases?.patients?.full_name || '—'}</td>
+                <td><span class="badge badge-stage">${s.stage_name}</span></td>
+                <td style="font-size:12.5px;color:var(--text-muted);font-family:'DM Mono',monospace;">${fmtDateTime(s.completed_at)}</td>
+            </tr>
+        `).join('');
+    }
+
+    /* ══════════════════════════════════════
+       COMMUNICATION LOGS
+    ══════════════════════════════════════ */
+
+    async function loadLogs() {
+        const { data } = await db.from("communication_logs")
+            .select(`stage_name, channel, status, sent_at,
+                referral_cases(patients(full_name), referring_doctors(full_name))`)
+            .order("sent_at", { ascending: false });
+
+        if (!data) return;
+        allLogRows = data;
+        renderLogs(data);
+    }
+
+    function renderLogs(data) {
+        const tbody = document.getElementById("logsBody");
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No communications yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(log => `
+            <tr>
+                <td><strong>${log.referral_cases?.referring_doctors?.full_name || '—'}</strong></td>
+                <td>${log.referral_cases?.patients?.full_name || '—'}</td>
+                <td><span class="badge badge-stage">${log.stage_name}</span></td>
+                <td style="text-transform:capitalize;">${log.channel}</td>
+                <td><span class="badge badge-${log.status === 'sent' ? 'sent' : 'pending'}">${log.status}</span></td>
+                <td style="font-family:'DM Mono',monospace;font-size:12px;">${fmtDateTime(log.sent_at)}</td>
+            </tr>
+        `).join('');
+    }
+
+    function filterLogs(q) {
+        const filtered = allLogRows.filter(l =>
+            (l.referral_cases?.referring_doctors?.full_name || '').toLowerCase().includes(q.toLowerCase()) ||
+            (l.referral_cases?.patients?.full_name || '').toLowerCase().includes(q.toLowerCase())
+        );
+        renderLogs(filtered);
+    }
+    async function logout() {
+
+        const { error } = await db.auth.signOut();
+
+        if (error) {
+            toast("Logout failed: " + error.message, "error");
+            return;
+        }
+
+        window.location.href = "index.html";
+
+    }
+    async function showUser() {
+
+        const { data: { user } } = await db.auth.getUser();
+
+        if (!user) return;
+
+        const badge = document.querySelector(".header-badge");
+        badge.textContent = user.email;
+
+    }
+
+    /* ══════════════════════════════════════
+       INITIAL LOAD
+    ══════════════════════════════════════ */
+
+    async function init() {
+        await Promise.all([
+            loadLiaisons(),
+            loadDoctors(),
+            loadReferralCases(),
+            showUser()
+        ]);
+        loadDashboard();
+    }
+
+    init();
+</script>
+
+</body>
+</html>
