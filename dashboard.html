@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referral CRM — Clinical Command</title>
+    <title>Referral CRM</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -862,6 +862,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Communications
     </div>
+    <div class="tab" onclick="switchTab('liaisons', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M17 11c1.657 0 3-1.79 3-4s-1.343-4-3-4"/>
+        <path d="M2 21v-2a4 4 0 014-4h6"/>
+    </svg>
+    Liaison Officers
+</div>
 </nav>
 
 <div class="content">
@@ -1281,6 +1289,303 @@
                     <tbody id="logsBody"></tbody>
                 </table>
             </div>
+        </div>
+
+    </div>
+    <div class="panel" id="panel-liaisons">
+
+        <div class="section-head">
+            <h2>Liaison Officer Performance</h2>
+            <div class="section-divider"></div>
+            <p>Monitor field visits, lead generation and conversion performance</p>
+        </div>
+
+        <!-- KPI ROW -->
+        <div class="stats-row">
+
+            <div class="stat-card">
+                <div class="stat-label">Total Visits</div>
+                <div class="stat-value">186</div>
+                <div class="stat-sub">Last 30 days</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Doctors Onboarded</div>
+                <div class="stat-value">23</div>
+                <div class="stat-sub">Referral partners</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Corporate Leads</div>
+                <div class="stat-value">14</div>
+                <div class="stat-sub">Potential retainerships</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Deals Closed</div>
+                <div class="stat-value">5</div>
+                <div class="stat-sub">Active retainerships</div>
+            </div>
+
+        </div>
+
+        <div class="two-col">
+
+            <!-- RECORD ACTIVITY -->
+            <div class="card">
+
+                <div class="card-header">
+                    <span class="card-title">Record Field Visit</span>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="form-group">
+                        <label class="form-label">Liaison Officer</label>
+                        <select class="form-select">
+                            <option>Select</option>
+                            <option>Emeka Okoye</option>
+                            <option>Ada Nwosu</option>
+                            <option>Musa Bello</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Activity Type</label>
+                        <select class="form-select">
+                            <option>Doctor Visit</option>
+                            <option>Hospital Visit</option>
+                            <option>Corporate Visit</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Target Name</label>
+                        <input class="form-input" placeholder="Dr. Okeke">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Organization</label>
+                        <input class="form-input" placeholder="Lagoon Hospital">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Outcome</label>
+                        <select class="form-select">
+                            <option>Introductory Visit</option>
+                            <option>Follow-up Meeting</option>
+                            <option>Proposal Submitted</option>
+                            <option>Lead Generated</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-gold btn-full">
+                        <span class="spinner-inline"></span>
+                        Record Activity
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- ACTIVITY LOG -->
+            <div class="card">
+
+                <div class="card-header">
+                    <span class="card-title">Recent Activities</span>
+                </div>
+
+                <div style="overflow-x:auto;">
+
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Liaison</th>
+                                <th>Type</th>
+                                <th>Target</th>
+                                <th>Organization</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Emeka Okoye</td>
+                                <td><span class="badge badge-stage">Doctor</span></td>
+                                <td>Dr. Obi</td>
+                                <td>St Nicholas Hospital</td>
+                                <td>12 May</td>
+                            </tr>
+
+                            <tr>
+                                <td>Ada Nwosu</td>
+                                <td><span class="badge badge-stage">Corporate</span></td>
+                                <td>HR Manager</td>
+                                <td>Shell Nigeria</td>
+                                <td>11 May</td>
+                            </tr>
+
+                            <tr>
+                                <td>Musa Bello</td>
+                                <td><span class="badge badge-stage">Hospital</span></td>
+                                <td>Oncology Dept</td>
+                                <td>LUTH</td>
+                                <td>10 May</td>
+                            </tr>
+
+                            <tr>
+                                <td>Emeka Okoye</td>
+                                <td><span class="badge badge-stage">Doctor</span></td>
+                                <td>Dr. Okafor</td>
+                                <td>Lagoon Hospital</td>
+                                <td>9 May</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="card" style="margin-top:24px;">
+
+            <div class="card-header">
+                <span class="card-title">Liaison Leaderboard</span>
+                <span class="card-badge">By Leads Generated</span>
+            </div>
+
+            <div class="card-body">
+
+                <div class="leaderboard-item">
+                    <div class="lb-rank top">1</div>
+                    <div class="lb-avatar">EO</div>
+
+                    <div class="lb-info">
+                        <div class="lb-name">Emeka Okoye</div>
+                        <div class="lb-detail">9 leads generated</div>
+                    </div>
+
+                    <div class="lb-bar-wrap">
+                        <div class="lb-bar" style="width:90%"></div>
+                    </div>
+
+                    <div class="lb-count">9</div>
+                </div>
+
+                <div class="leaderboard-item">
+                    <div class="lb-rank top">2</div>
+                    <div class="lb-avatar">AN</div>
+
+                    <div class="lb-info">
+                        <div class="lb-name">Ada Nwosu</div>
+                        <div class="lb-detail">7 leads generated</div>
+                    </div>
+
+                    <div class="lb-bar-wrap">
+                        <div class="lb-bar" style="width:70%"></div>
+                    </div>
+
+                    <div class="lb-count">7</div>
+                </div>
+
+                <div class="leaderboard-item">
+                    <div class="lb-rank">3</div>
+                    <div class="lb-avatar">MB</div>
+
+                    <div class="lb-info">
+                        <div class="lb-name">Musa Bello</div>
+                        <div class="lb-detail">5 leads generated</div>
+                    </div>
+
+                    <div class="lb-bar-wrap">
+                        <div class="lb-bar" style="width:50%"></div>
+                    </div>
+
+                    <div class="lb-count">5</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CORPORATE PIPELINE -->
+        <div class="card" style="margin-top:24px;">
+
+            <div class="card-header">
+                <span class="card-title">Corporate Retainership Pipeline</span>
+                <span class="card-badge">Active Opportunities</span>
+            </div>
+
+            <div class="card-body">
+
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;">
+
+                    <!-- VISITED -->
+                    <div>
+                        <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Visited</div>
+
+                        <div class="card" style="padding:10px;margin-bottom:8px;">
+                            <strong>Dangote Group</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Visited by Emeka</div>
+                        </div>
+
+                        <div class="card" style="padding:10px;">
+                            <strong>Total Energies</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Visited by Musa</div>
+                        </div>
+                    </div>
+
+                    <!-- MEETING -->
+                    <div>
+                        <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Meeting Scheduled</div>
+
+                        <div class="card" style="padding:10px;">
+                            <strong>Shell Nigeria</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Ada Nwosu</div>
+                        </div>
+                    </div>
+
+                    <!-- PROPOSAL -->
+                    <div>
+                        <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Proposal Submitted</div>
+
+                        <div class="card" style="padding:10px;">
+                            <strong>MTN Nigeria</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Emeka Okoye</div>
+                        </div>
+                    </div>
+
+                    <!-- NEGOTIATION -->
+                    <div>
+                        <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Negotiation</div>
+
+                        <div class="card" style="padding:10px;">
+                            <strong>Chevron</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Musa Bello</div>
+                        </div>
+                    </div>
+
+                    <!-- RETAINERSHIP -->
+                    <div>
+                        <div style="font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Retainership</div>
+
+                        <div class="card" style="padding:10px;">
+                            <strong>NLNG</strong>
+                            <div style="font-size:11px;color:var(--text-muted);">Ada Nwosu</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -1877,7 +2182,7 @@
             return;
         }
 
-        window.location.href = "index.html";
+        window.location.href = "login.html";
 
     }
     async function showUser() {
