@@ -2013,7 +2013,7 @@
                 id,
                 referring_doctor_id,
                 patients(full_name),
-                referring_doctors(full_name, email)
+                referring_doctors(full_name, email, phone)
             `)
             .eq("id", caseId)
             .single();
@@ -2030,6 +2030,7 @@
         const doctorName = refCase.referring_doctors?.full_name || "";
         const doctorEmail = refCase.referring_doctors?.email || "";
         const patientName = refCase.patients?.full_name || "";
+        const doctorPhone = refCase.referring_doctors?.phone || "";
 
         /* ─────────────────────────────
            3. SEND EMAIL VIA EDGE FUNCTION
@@ -2064,6 +2065,24 @@
 
             toast("Failed to send notification", "error");
             return;
+        }
+        /* ─────────────────────────────
+           3b. SEND WHATSAPP
+        ───────────────────────────── */
+        if (channels.includes("whatsapp") && doctorPhone) {
+            try {
+                await fetch("https://whatsapp-test-1-8xrk.onrender.com/send-message", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        phone: doctorPhone.replace(/\D/g, ""), // strip non-digits
+                        message: `Dear Dr. ${doctorName}, your patient ${patientName} has completed the *${stage}* stage. Please contact us for further updates.`
+                    })
+                });
+            } catch (err) {
+                console.error("WhatsApp send failed:", err);
+                toast("WhatsApp notification failed", "error");
+            }
         }
 
         /* ─────────────────────────────
